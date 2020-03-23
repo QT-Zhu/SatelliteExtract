@@ -1,1 +1,1 @@
-python3 train.py --train_batch_size 4 --loss CE
+python3 train.py --train_batch_size 4 --loss CE+D --init_eval True

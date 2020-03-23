@@ -136,14 +136,13 @@ class Trainer(object):
         for each_miniepoch in range(self.num_miniepoch):
             for i,[img,gt] in enumerate(self.train_loader):
                 print("epoch:",epoch," batch:",miniepoch_size*each_miniepoch+i+1)
-                #print("img:",img.shape)
-                #print("gt:",gt.shape)
+                print("img:",img.shape)
+                print("gt:",gt.shape)
                 self.optimizer.zero_grad()
                 if self.cuda:
                     img,gt = img.cuda(),gt.cuda()
-                #pred = self.model(img)['out']
                 pred = self.model(img)
-                #print("pred:",pred.shape)
+                print("pred:",pred.shape)
                 loss = self.criterion(pred,gt.long())
                 print("loss:",loss)
                 total_loss += loss.data

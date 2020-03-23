@@ -63,7 +63,7 @@ class Tester(object):
             for each_file in f:
                 file_name = each_file.strip()
                 img = os.path.join(self.img_path,file_name)
-                file_name = file_name[:-7]+"label.tif"
+                file_name = file_name[:-7]+"osm.png"
                 gt = os.path.join(self.gt_path,file_name)
                 assert os.path.isfile(img),"Images %s cannot be found!" %img
                 assert os.path.isfile(gt),"Ground truth %s cannot be found!" %gt
@@ -126,15 +126,14 @@ class Tester(object):
         score_map = np.zeros([H,W],dtype=np.uint8)
         for i,j in tbar:
             tbar.set_description(f"{i},{j}")
-            label_map,score_map = self.test_patch(i,j,img,label_map,score_map)
-        #finish a 6000x6000
-        self.evaluator.add_batch(label_map,gt)
-        
+            label_map,score_map = self.test_patch(i,j,img,label_map,score_map)    
         #save mask
         if save:   
             mask = ret2mask(label_map)
             png_name = os.path.join("epoch"+str(train_epoch),os.path.basename(img_file).split('.')[0]+'.png')
             Image.fromarray(mask).save(png_name)
+        #finish a 6000x6000
+        self.evaluator.add_batch(label_map,gt)
 
     def test_patch(self,i,j,img,label_map,score_map):
         cropped = func.crop(img,i,j,self.crop_size,self.crop_size)
