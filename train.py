@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--model', type=str, default='deeplabv3+', help='model to train')
     parser.add_argument('--schedule_mode', type=str, default='poly', help='which scheduler to apply')
     parser.add_argument('--init_eval', type=str2bool, default=False, help='whether to start with evaluation')
-    parser.add_argument('--lr', type=float, default=5e-4, help='learning rate of training')
+    parser.add_argument('--lr', type=float, default=1e-4, help='learning rate of training')
     
     args = parser.parse_args()
     print(args)

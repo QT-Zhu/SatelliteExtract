@@ -20,7 +20,7 @@ class AerialDataset(Dataset):
             for each_file in f:
                 file_name = each_file.strip()
                 img = os.path.join(self.img_path,file_name)
-                file_name = file_name[:-7]+"label.tif"
+                file_name = file_name[:-7]+"osm.png"
                 gt = os.path.join(self.gt_path,file_name)
                 assert os.path.isfile(img),"Images %s cannot be found!" %img
                 assert os.path.isfile(gt),"Ground truth %s cannot be found!" %gt
@@ -37,10 +37,10 @@ class AerialDataset(Dataset):
 
     def __getitem__(self,index):
         img = Image.open(self.img_list[index]).convert('RGB')
-        #gt = mask2label(Image.open(self.gt_list[index])) 
+
         
         #or more efficiently, directly load label map
-        gt = Image.open(self.gt_list[index])
+        gt = Image.open(self.gt_list[index]).convert('1')
         #Trans from PIL pair to tensor pair
         return self.augtrans(img,gt)
         

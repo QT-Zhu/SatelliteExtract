@@ -1,1 +1,1 @@
-python3 train.py --train_batch_size 4 --gt_path Potsdam/Potsdam_label/ --model fcn --loss CE+D
+python3 train.py --train_batch_size 4 --loss CE

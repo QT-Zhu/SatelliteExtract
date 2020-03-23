@@ -20,12 +20,8 @@ def get_test_times(width, height, crop_size, stride):
 # From PIL to PIL
 def mask2label(mask):
     rgb2label={}
-    rgb2label[(255,255,255)]=0
-    rgb2label[(0,0,255)]=1
-    rgb2label[(0,255,255)]=2
-    rgb2label[(0,255,0)]=3
-    rgb2label[(255,255,0)]=4
-    rgb2label[(255,0,0)]=5
+    rgb2label[(0,0,0)]=0
+    rgb2label[(255,255,255)]=1
     mask = np.array(mask) # mask is a PIL object
     label_map = np.zeros((mask.shape[0],mask.shape[1]),dtype=np.uint8)
 
@@ -36,12 +32,9 @@ def mask2label(mask):
 
 def ret2mask(pred):
     label2rgb={}
-    label2rgb[0]=(255,255,255)
-    label2rgb[1]=(0,0,255)
-    label2rgb[2]=(0,255,255)
-    label2rgb[3]=(0,255,0)
-    label2rgb[4]=(255,255,0)
-    label2rgb[5]=(255,0,0)
+    label2rgb[0]=(0,0,0)
+    label2rgb[1]=(255,255,255)
+
     mask = np.zeros((pred.shape[0],pred.shape[1],3),dtype=np.uint8)
     for label in label2rgb:
         index = np.where(pred == label)[:2]

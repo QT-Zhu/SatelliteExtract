@@ -13,5 +13,3 @@ from .duc_hdc import DeepLab_DUC_HDC
 from .upernet import UperNet
 from .pspnet import PSPDenseNet
 '''
-from .fcn8s import FCN8s
-from .deeplabv3plus import DeepLabV3plus

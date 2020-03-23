@@ -2,7 +2,6 @@ from torch.utils.data.dataloader import DataLoader
 from utils.AerialDataset import AerialDataset
 import torch
 import os
-import custom_models.segmentation as tvmodels
 import torch.nn as nn
 import torch.optim as opt
 from utils.utils import ret2mask,get_test_times
@@ -14,7 +13,6 @@ from PIL import Image
 #For global test
 from Tester import Tester
 import argparse
-#from torch.utils.tensorboard import SummaryWriter
 from tensorboardX import SummaryWriter
 
 #For loss and scheduler
@@ -31,12 +29,7 @@ class Trainer(object):
         self.train_data = AerialDataset(args,mode='train')
         self.train_loader =  DataLoader(self.train_data,batch_size=args.train_batch_size,shuffle=True,
                           num_workers=2)
-        if args.model == 'fcn':
-            #self.model = tvmodels.fcn_resnet101(num_classes=args.num_of_class)
-            self.model = tvmodels.fcn_resnet50(num_classes=args.num_of_class)
-        elif args.model == 'deeplabv3':
-            self.model = tvmodels.deeplabv3_resnet50(num_classes=args.num_of_class)
-        elif args.model == 'deeplabv3+':
+        if args.model == 'deeplabv3+':
             self.model = models.DeepLab(num_classes=args.num_of_class,backbone='resnet')
         elif args.model == 'gcn':
             self.model = models.GCN(num_classes=args.num_of_class)
@@ -48,7 +41,7 @@ class Trainer(object):
         if args.loss == 'CE':
             self.criterion = CrossEntropyLoss2d()
         elif args.loss == 'BCE':
-            self.criterion = nn.BCELoss()
+            self.criterion = nn.BCEWithLogitsLoss()
         elif args.loss == 'LS':
             self.criterion = LovaszSoftmax()
         elif args.loss == 'F':
@@ -74,8 +67,6 @@ class Trainer(object):
         else:
             raise NotImplementedError
 
-        #self.eval_data = AerialDataset(args,mode='eval')
-        #self.eval_loader = DataLoader(self.eval_data,batch_size=args.eval_batch_size,shuffle=False,num_workers=1)
         self.evaluator = Evaluator(args.num_of_class)
         
         self.cuda = args.cuda
@@ -159,63 +150,6 @@ class Trainer(object):
                 loss.backward()
                 self.optimizer.step()
         return total_loss
-
-    #deprecated in latest version
-    '''
-    def eval(self,epoch,save_flag):
-        self.model.eval()
-        self.evaluator.reset()
-        if os.path.exists("epoch"+str(epoch)) is False and save_flag:
-            os.mkdir("epoch"+str(epoch))
-        print(f"-----eval epoch {epoch}-----")
-        for i,[ori,img,gt] in enumerate(self.eval_loader):
-            print("batch:",i+1)
-            print("img:",img.shape)
-            print("gt:",gt.shape)
-            eval_batch_size = gt.shape[0]
-            if self.cuda:
-                img = img.cuda()
-            out = self.model(img)['out']
-            if eval_batch_size==1:
-                pred = torch.argmax(out.squeeze(), dim=0).detach().cpu().numpy()
-            else:
-                pred = torch.argmax(out.squeeze(), dim=1).detach().cpu().numpy()
-            print("pred:",pred.shape)
-            gt = gt.numpy().squeeze()
-            #Both gt and pred are numpy array now
-            self.evaluator.add_batch(gt,pred)
-            
-            if save_flag:
-                #colorise
-                ori = ori.numpy().squeeze()
-                if eval_batch_size==1:
-                    mask = ret2mask(pred)
-                    gt_color = ret2mask(gt)
-                    ori_single = ori.transpose(1,2,0)            
-                    cat = np.concatenate((gt_color,ori_single,mask),axis=1)
-                    cat = Image.fromarray(np.uint8(cat))
-                    cat.save("epoch"+str(epoch)+"/batch"+str(i+1)+".png")
-                else:
-                    for each_index in range(eval_batch_size):
-                        mask = ret2mask(pred[each_index])
-                        gt_color = ret2mask(gt[each_index])
-                        ori_single = ori[each_index].transpose(1,2,0)
-                        cat = np.concatenate((gt_color,ori_single,mask),axis=1)
-                        cat = Image.fromarray(np.uint8(cat))
-                        cat.save("epoch"+str(epoch)+"/batch"+str(i+1)+"_"+str(each_index)+".png")
-      
-        Acc = self.evaluator.Pixel_Accuracy()
-        Acc_class = self.evaluator.Pixel_Accuracy_Class()
-        mIoU = self.evaluator.Mean_Intersection_over_Union()
-        FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union()
-        
-        print("Acc:",Acc)
-        print("Acc_class:",Acc_class)
-        print("mIoU:",mIoU)
-        print("FWIoU:",FWIoU)
-
-        return Acc,Acc_class,mIoU,FWIoU
-    '''
     
     def eval_complete(self,epoch,save_flag=True):
         args = argparse.Namespace()

@@ -1,5 +1,4 @@
 from custom_transforms import transforms
-import custom_models.segmentation as tvmodels
 import torch
 from PIL import Image
 import numpy as np
@@ -38,11 +37,7 @@ class Tester(object):
         self.cuda = args.cuda
 
     def init_by_args(self,args):
-        if args.model == 'fcn':
-            self.model = tvmodels.fcn_resnet50(num_classes=args.num_of_class)
-        elif args.model == 'deeplabv3':
-            self.model = tvmodels.deeplabv3_resnet50(num_classes=args.num_of_class)
-        elif args.model == 'deeplabv3+':
+        if args.model == 'deeplabv3+':
             self.model = models.DeepLab(num_classes=args.num_of_class,backbone='resnet')
         elif args.model == 'unet':
             self.model = models.UNet(num_classes=args.num_of_class)
