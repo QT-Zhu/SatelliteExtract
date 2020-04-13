@@ -6,7 +6,8 @@ import torch.nn as nn
 import torch.optim as opt
 from utils.utils import ret2mask,get_test_times
 import matplotlib.pyplot as plt
-from utils.metrics import Evaluator
+#from utils.metrics import Evaluator
+from utils.meter import AverageMeter,accuracy,intersectionAndUnion
 import numpy as np
 from PIL import Image
 
@@ -66,8 +67,6 @@ class Trainer(object):
             self.scheduler = Poly(self.optimizer,num_epochs=args.epochs,iters_per_epoch=iters_per_epoch)
         else:
             raise NotImplementedError
-
-        self.evaluator = Evaluator(args.num_of_class)
         
         self.cuda = args.cuda
         if self.cuda is True:
@@ -93,7 +92,7 @@ class Trainer(object):
     def run(self):
         if self.init_eval: #init with an evaluation
             init_test_epoch = self.start_epoch - 1
-            Acc,_,mIoU,_ = self.eval_complete(init_test_epoch,True)
+            Acc,mIoU = self.eval_complete(init_test_epoch,True)
             self.writer.add_scalar('eval/Acc', Acc, init_test_epoch)
             self.writer.add_scalar('eval/mIoU', mIoU, init_test_epoch)
             self.writer.flush()
@@ -112,7 +111,7 @@ class Trainer(object):
             }
             torch.save(saved_dict, f'./{self.model.__class__.__name__}_epoch{epoch}.pth.tar')
             
-            Acc,_,mIoU,_ = self.eval_complete(epoch)
+            Acc,mIoU = self.eval_complete(epoch)
             self.writer.add_scalar('eval/Acc',Acc,epoch)
             self.writer.add_scalar('eval/mIoU',mIoU,epoch)
             self.writer.flush()
@@ -162,8 +161,8 @@ class Trainer(object):
         args.gt_path = self.args.gt_path
         args.num_of_class = self.args.num_of_class
         tester = Tester(args)
-        Acc,Acc_class,mIoU,FWIoU=tester.run(train_epoch=epoch,save=save_flag)
-        return Acc,Acc_class,mIoU,FWIoU
+        Acc,mIoU=tester.run(train_epoch=epoch,save=save_flag)
+        return Acc,mIoU
 
 if __name__ == "__main__":
    print("--Trainer.py--")

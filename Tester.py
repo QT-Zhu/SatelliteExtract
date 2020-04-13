@@ -5,7 +5,7 @@ import numpy as np
 from custom_transforms import functional as func
 from tqdm import tqdm
 import os
-from utils.metrics import Evaluator
+from utils.meter import AverageMeter,accuracy,intersectionAndUnion
 
 import models
 import math 
@@ -30,7 +30,9 @@ class Tester(object):
         self.gt_path = args.gt_path
         self.test_list = self.get_pairs()
         print(f"{len(self.test_list)} pairs to test...")
-        self.evaluator = Evaluator(args.num_of_class)
+        self.acc_meter = AverageMeter()
+        self.intersection_meter = AverageMeter()
+        self.union_meter = AverageMeter()
         
     def init_by_trainer(self,args): 
         self.model = args.model
@@ -39,6 +41,8 @@ class Tester(object):
     def init_by_args(self,args):
         if args.model == 'deeplabv3+':
             self.model = models.DeepLab(num_classes=args.num_of_class,backbone='resnet')
+        elif args.model == 'fcn':
+            self.model = models.FCN8(num_classes=args.num_of_class)
         elif args.model == 'unet':
             self.model = models.UNet(num_classes=args.num_of_class)
         elif args.model == 'gcn':
@@ -104,15 +108,13 @@ class Tester(object):
             if save and os.path.exists("epoch"+str(train_epoch)) is False:
                 os.mkdir("epoch"+str(train_epoch))
             self.test_one_large(img_file,gt_file,train_epoch,save)
-        Acc = self.evaluator.Pixel_Accuracy()
-        Acc_class = self.evaluator.Pixel_Accuracy_Class()
-        mIoU = self.evaluator.Mean_Intersection_over_Union()
-        FWIoU = self.evaluator.Frequency_Weighted_Intersection_over_Union() 
-        print("Acc:",Acc)
-        print("Acc_class:",Acc_class)
-        print("mIoU:",mIoU)
-        print("FWIoU:",FWIoU)
-        return Acc,Acc_class,mIoU,FWIoU
+        iou = self.intersection_meter.sum / (self.union_meter.sum + 1e-10)
+        for i, _iou in enumerate(iou):
+            print('class [{}], IoU: {:.4f}'.format(i, _iou))
+        mIoU = iou.mean()
+        Acc = self.acc_meter.average()
+        print('Mean IoU: {:.4f}, Accuracy: {:.2f}'.format(mIoU,Acc))
+        return Acc,mIoU
         
     def test_one_large(self,img_file,gt_file,train_epoch,save):
         img = Image.open(img_file).convert('RGB')
@@ -133,7 +135,11 @@ class Tester(object):
             png_name = os.path.join("epoch"+str(train_epoch),os.path.basename(img_file).split('.')[0]+'.png')
             Image.fromarray(mask).save(png_name)
         #finish a 6000x6000
-        self.evaluator.add_batch(label_map,gt)
+        acc, pix = accuracy(label_map, gt)
+        intersection, union = intersectionAndUnion(label_map, gt, 6)
+        self.acc_meter.update(acc, pix)
+        self.intersection_meter.update(intersection)
+        self.union_meter.update(union)
 
     def test_patch(self,i,j,img,label_map,score_map):
         cropped = func.crop(img,i,j,self.crop_size,self.crop_size)
