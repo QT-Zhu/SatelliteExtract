@@ -117,6 +117,7 @@ class Tester(object):
         mIoU = iou.mean()
         Acc = self.acc_meter.average()
         print('Mean IoU: {:.4f}, Accuracy: {:.2f}'.format(mIoU,Acc))
+        print('Road IoU: {:.4f}'.format(roadIoU))
         return Acc,mIoU,roadIoU
         
     def test_one_large(self,img_file,gt_file,train_epoch,save):
@@ -137,7 +138,7 @@ class Tester(object):
             mask = ret2mask(label_map)
             png_name = os.path.join("epoch"+str(train_epoch),os.path.basename(img_file).split('.')[0]+'.png')
             Image.fromarray(mask).save(png_name)
-        #finish a 6000x6000
+
         acc, pix = accuracy(label_map, gt)
         intersection, union = intersectionAndUnion(label_map, gt, 2)
         self.acc_meter.update(acc, pix)
@@ -151,7 +152,6 @@ class Tester(object):
         self.model.eval()
         if self.cuda:
             cropped = cropped.cuda()
-        #out = self.model(cropped)['out']
         out = self.model(cropped)
         #out = torch.nn.functional.softmax(out, dim=1)
         ret = torch.max(out.squeeze(),dim=0)
