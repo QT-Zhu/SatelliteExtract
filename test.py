@@ -10,7 +10,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Unsupported bool string format.')
 
 def main():
-    parser = argparse.ArgumentParser(description="AerialSeg by PyTorch: test.py")
+    parser = argparse.ArgumentParser(description="test.py")
     #parser.add_argument('--eval_batch_size', type=int, default=1, help='batch size for validation')
     parser.add_argument('--eval_list', type=str, default='Potsdam/Potsdam_val.txt', help='list file for validation')
     parser.add_argument('--img_path', type=str, default='Potsdam/2_Ortho_RGB', help='path for images of dataset')

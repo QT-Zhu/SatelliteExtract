@@ -109,17 +109,20 @@ class Tester(object):
                 os.mkdir("epoch"+str(train_epoch))
             self.test_one_large(img_file,gt_file,train_epoch,save)
         iou = self.intersection_meter.sum / (self.union_meter.sum + 1e-10)
+        roadIoU = 0
         for i, _iou in enumerate(iou):
             print('class [{}], IoU: {:.4f}'.format(i, _iou))
+            if i==1:
+                roadIoU = _iou
         mIoU = iou.mean()
         Acc = self.acc_meter.average()
         print('Mean IoU: {:.4f}, Accuracy: {:.2f}'.format(mIoU,Acc))
-        return Acc,mIoU
+        return Acc,mIoU,roadIoU
         
     def test_one_large(self,img_file,gt_file,train_epoch,save):
         img = Image.open(img_file).convert('RGB')
         H, W = img.size
-        gt = np.array(Image.open(gt_file))
+        gt = np.array(Image.open(gt_file).convert('1'))
         times, points = self.get_pointset(img)
         
         print(f'{times} tests will be carried out on {img_file}...')
@@ -136,7 +139,7 @@ class Tester(object):
             Image.fromarray(mask).save(png_name)
         #finish a 6000x6000
         acc, pix = accuracy(label_map, gt)
-        intersection, union = intersectionAndUnion(label_map, gt, 6)
+        intersection, union = intersectionAndUnion(label_map, gt, 2)
         self.acc_meter.update(acc, pix)
         self.intersection_meter.update(intersection)
         self.union_meter.update(union)

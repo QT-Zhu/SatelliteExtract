@@ -1,1 +1,1 @@
-python3 train.py --train_batch_size 2 --loss CE+D --init_eval True
+python3 train.py --model gcn --cuda True --train_batch_size 4 --loss LS --init_eval True --epochs 200

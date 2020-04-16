@@ -10,7 +10,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Unsupported bool string format.')
 
 def main():
-    parser = argparse.ArgumentParser(description="AerialSeg by PyTorch: train.py")
+    parser = argparse.ArgumentParser(description="train.py")
     parser.add_argument('--train_batch_size', type=int, default=2, help='batch size for training')
     parser.add_argument('--train_list', type=str, default='dataset/train.txt', help='list file for training')
     parser.add_argument('--eval_list', type=str, default='dataset/eval.txt', help='list file for validation')

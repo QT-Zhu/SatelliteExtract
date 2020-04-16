@@ -92,9 +92,10 @@ class Trainer(object):
     def run(self):
         if self.init_eval: #init with an evaluation
             init_test_epoch = self.start_epoch - 1
-            Acc,mIoU = self.eval_complete(init_test_epoch,True)
+            Acc,mIoU,roadIoU = self.eval_complete(init_test_epoch,True)
             self.writer.add_scalar('eval/Acc', Acc, init_test_epoch)
             self.writer.add_scalar('eval/mIoU', mIoU, init_test_epoch)
+            self.writer.add_scalar('eval/roadIoU',roadIoU,init_test_epoch)
             self.writer.flush()
         end_epoch = self.start_epoch + self.epochs
         for epoch in range(self.start_epoch,end_epoch):  
@@ -111,9 +112,10 @@ class Trainer(object):
             }
             torch.save(saved_dict, f'./{self.model.__class__.__name__}_epoch{epoch}.pth.tar')
             
-            Acc,mIoU = self.eval_complete(epoch)
+            Acc,mIoU,roadIoU = self.eval_complete(epoch)
             self.writer.add_scalar('eval/Acc',Acc,epoch)
             self.writer.add_scalar('eval/mIoU',mIoU,epoch)
+            self.writer.add_scalar('eval/roadIoU',roadIoU,epoch)
             self.writer.flush()
             if self.schedule_mode == 'step' or self.schedule_mode == 'poly':
                 self.scheduler.step()
@@ -161,8 +163,8 @@ class Trainer(object):
         args.gt_path = self.args.gt_path
         args.num_of_class = self.args.num_of_class
         tester = Tester(args)
-        Acc,mIoU=tester.run(train_epoch=epoch,save=save_flag)
-        return Acc,mIoU
+        Acc,mIoU,roadIoU=tester.run(train_epoch=epoch,save=save_flag)
+        return Acc,mIoU,roadIoU
 
 if __name__ == "__main__":
    print("--Trainer.py--")
