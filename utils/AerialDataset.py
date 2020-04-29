@@ -8,7 +8,6 @@ from custom_transforms import AerialTransforms
 class AerialDataset(Dataset):
     def __init__(self,args,mode):
         self.mode = mode
-        self.crop_size = args.crop_size
         self.img_path, self.gt_path= os.path.join(os.getcwd(),args.img_path),os.path.join(os.getcwd(),args.gt_path)
         self.img_list,self.gt_list = [],[]
         if self.mode=='train':
@@ -35,10 +34,7 @@ class AerialDataset(Dataset):
         return len(self.gt_list)
 
     def __getitem__(self,index):
-        img = Image.open(self.img_list[index]).convert('RGB')
-
-        
-        #or more efficiently, directly load label map
+        img = Image.open(self.img_list[index]).convert('RGB') 
         gt = Image.open(self.gt_list[index]).convert('1')
         #Trans from PIL pair to tensor pair
         return self.augtrans(img,gt)

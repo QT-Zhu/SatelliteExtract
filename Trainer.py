@@ -27,7 +27,7 @@ class Trainer(object):
         self.train_loader =  DataLoader(self.train_data,batch_size=args.train_batch_size,shuffle=True,
                           num_workers=2)
         self.eval_data = AerialDataset(args,mode='eval')
-        self.eval_loader =  DataLoader(self.eval_data,batch_size=args.eval_batch_size,shuffle=True,
+        self.eval_loader =  DataLoader(self.eval_data,batch_size=args.eval_batch_size,shuffle=False,
                           num_workers=2)
 
         if args.model == 'deeplabv3+':
@@ -147,6 +147,7 @@ class Trainer(object):
             print("pred:",pred.shape)
 
             ret = torch.argmax(pred,dim=1).data.detach().cpu().numpy()
+            gt = gt.data.detach().cpu().numpy()
 
             acc, pix = accuracy(ret,gt)
             intersection, union = intersectionAndUnion(ret,gt,self.args.num_of_class)

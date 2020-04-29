@@ -27,7 +27,7 @@ class TrainAug(object):
         gt = gt.squeeze()
         return img,gt
 
-#deprecated
+
 class EvalAug(object):
     def __init__(self):
         #self.crop_trans = transforms.RandomCrop(crop_size)
@@ -39,4 +39,4 @@ class EvalAug(object):
         img, gt = self.tensor_trans(img,gt)
         img_tensor = self.normalize_trans(img)
         gt = gt.squeeze()
-        return img, img_tensor, gt
+        return img_tensor, gt
