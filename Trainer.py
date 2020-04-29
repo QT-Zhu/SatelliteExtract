@@ -57,6 +57,7 @@ class Trainer(object):
         
         self.cuda = args.cuda
         if self.cuda is True:
+            self.model = nn.DataParallel(self.model)
             self.model = self.model.cuda()
 
         self.resume = args.resume
