@@ -1,6 +1,0 @@
-toronto_1_0_sat.png
-toronto_0_-1_sat.png
-toronto_0_0_sat.png
-toronto_-1_0_sat.png
-toronto_-1_-1_sat.png
-toronto_1_-1_sat.png
