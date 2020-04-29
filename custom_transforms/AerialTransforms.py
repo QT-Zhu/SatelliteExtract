@@ -4,7 +4,7 @@ from . import functional as F
 import numpy as np
 import matplotlib.pyplot as plt
 class TrainAug(object):
-    def __init__(self,crop_size):
+    def __init__(self):
         #self.crop_trans = transforms.RandomCrop(crop_size)
         #self.crop_trans = transforms.ZQTRandomCrop(crop_size)
         self.hflip_trans = transforms.RandomHorizontalFlip()
@@ -29,7 +29,7 @@ class TrainAug(object):
 
 #deprecated
 class EvalAug(object):
-    def __init__(self,crop_size):
+    def __init__(self):
         #self.crop_trans = transforms.RandomCrop(crop_size)
         self.tensor_trans = transforms.ToTensor()
         self.normalize_trans = transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])

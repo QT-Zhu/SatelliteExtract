@@ -1,7 +1,6 @@
 from torch.utils.data.dataset import Dataset
 import os
 from PIL import Image
-#from .utils import mask2label
 from custom_transforms import AerialTransforms
 
 
@@ -14,7 +13,7 @@ class AerialDataset(Dataset):
         self.img_list,self.gt_list = [],[]
         if self.mode=='train':
             self.list = args.train_list
-        else: #deprecated: self.mode == 'eval'
+        else: #self.mode=='eval'
             self.list = args.eval_list
         with open(self.list) as f:
             for each_file in f:
@@ -28,9 +27,9 @@ class AerialDataset(Dataset):
                 self.gt_list.append(gt)
         print(f"{len(self.img_list)} pairs to {self.mode}")
         if self.mode == 'train':
-            self.augtrans = AerialTransforms.TrainAug(self.crop_size)
+            self.augtrans = AerialTransforms.TrainAug()
         else: #self.mode == 'eval'
-            self.augtrans = AerialTransforms.EvalAug(self.crop_size)
+            self.augtrans = AerialTransforms.EvalAug()
         
     def __len__(self):
         return len(self.gt_list)
