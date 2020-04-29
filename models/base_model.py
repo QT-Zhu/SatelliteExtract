@@ -19,4 +19,3 @@ class BaseModel(nn.Module):
         model_parameters = filter(lambda p: p.requires_grad, self.parameters())
         nbr_params = sum([np.prod(p.size()) for p in model_parameters])
         return super(BaseModel, self).__str__() + f'\nNbr of trainable parameters: {nbr_params}'
-        #return summary(self, input_shape=(2, 3, 224, 224))

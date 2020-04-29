@@ -1,7 +1,5 @@
 # Origian code and chechpoints by Hang Zhang
 # https://github.com/zhanghang1989/PyTorch-Encoding
-
-
 import math
 import torch
 import os
