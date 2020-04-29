@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--eval_list', type=str, default='dataset/eval.txt', help='list file for validation')
     parser.add_argument('--img_path', type=str, default='dataset/sat', help='path for images of dataset')
     parser.add_argument('--gt_path', type=str, default='dataset/mask', help='path for ground truth of dataset')
-    parser.add_argument('--num_of_class', type=int, default=2, help='number of classes')
+    parser.add_argument('--num_of_class', type=int, default=2, choices=[1,2], help='number of classes')
     parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
     parser.add_argument('--resume', type=str, default=None, help='checkpoint to resume from')
     parser.add_argument('--cuda', type=str2bool, default=False, help='whether to use GPU')
