@@ -20,7 +20,7 @@ class AerialDataset(Dataset):
             for each_file in f:
                 file_name = each_file.strip()
                 img = os.path.join(self.img_path,file_name)
-                file_name = file_name[:-7]+"osm.png"
+                file_name = file_name[:-7]+"mask.png"
                 gt = os.path.join(self.gt_path,file_name)
                 assert os.path.isfile(img),"Images %s cannot be found!" %img
                 assert os.path.isfile(gt),"Ground truth %s cannot be found!" %gt
