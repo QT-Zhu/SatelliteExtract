@@ -2,7 +2,7 @@ from . import transforms
 from . import functional as F
 #import torch.nn as nn
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 class TrainAug(object):
     def __init__(self):
         #self.crop_trans = transforms.RandomCrop(crop_size)
