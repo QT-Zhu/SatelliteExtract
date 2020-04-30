@@ -1,2 +1,4 @@
-amsterdam_-1_-1_5_sat.png
-amsterdam_-1_-1_6_sat.png
+amsterdam_-1_-1_10_sat.png
+amsterdam_-1_-1_11_sat.png
+amsterdam_-1_-1_12_sat.png
+amsterdam_-1_-1_13_sat.png
