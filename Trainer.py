@@ -52,6 +52,8 @@ class Trainer(object):
         else:
             raise NotImplementedError
 
+        self.token = self.model.__class__.__name__+'_'+args.loss
+
         self.optimizer = opt.AdamW(self.model.parameters(),lr=args.lr)
         self.scheduler = Poly(self.optimizer,num_epochs=args.epochs,iters_per_epoch=len(self.train_loader))
         
@@ -73,7 +75,7 @@ class Trainer(object):
             #start from next epoch
         else:
             self.start_epoch = 1
-        self.writer = SummaryWriter(comment='-'+self.model.__class__.__name__+'_'+args.loss)
+        self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
         
     #Note: self.start_epoch and self.epochs are only used in run() to schedule training & validation
@@ -92,13 +94,13 @@ class Trainer(object):
             self.writer.add_scalar('train/loss',loss,epoch)
             self.writer.flush()
             saved_dict = {
-                'model': self.model.__class__.__name__,
+                'model': self.token,
                 'epoch': epoch,
                 'parameters': self.model.state_dict(),
                 'optimizer': self.optimizer.state_dict(),
                 'scheduler': self.scheduler.state_dict()
             }
-            torch.save(saved_dict, f'./{self.model.__class__.__name__}_epoch{epoch}.pth.tar')
+            torch.save(saved_dict, f'./{self.token}_epoch{epoch}.pth.tar')
 
             Acc, mIoU, roadIoU = self.eval(epoch)
             self.writer.add_scalar('eval/Acc',Acc,epoch)
