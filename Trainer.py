@@ -125,7 +125,11 @@ class Trainer(object):
                 img,gt = img.cuda(),gt.cuda()
             pred = self.model(img)
             print("pred:",pred.shape)
-            loss = self.criterion(pred,gt.long())
+            if self.args.num_of_class == 1:
+                pred = pred.squeeze()
+                loss = self.criterion(pred,gt)
+            else: #self.args.num_of_class == 2
+                loss = self.criterion(pred,gt.long())
             print("loss:",loss)
             total_loss += loss.data
             loss.backward()
@@ -148,11 +152,18 @@ class Trainer(object):
             pred = self.model(img)
             print("pred:",pred.shape)
 
-            ret = torch.argmax(pred,dim=1).data.detach().cpu().numpy()
-            gt = gt.data.detach().cpu().numpy()
+            if self.args.num_of_class == 2:
+                ret = torch.argmax(pred,dim=1).data.detach().cpu().numpy()
+                
+            else: #self.args.num_of_class == 1
+                ret = torch.sigmoid(pred).data.detach().cpu().numpy().squeeze()
+                ret[ret >= 0.5] = 1
+                ret[ret < 0.5] = 0
 
+            gt = gt.data.detach().cpu().numpy()
+            print(ret.shape,gt.shape)
             acc, pix = accuracy(ret,gt)
-            intersection, union = intersectionAndUnion(ret,gt,self.args.num_of_class)
+            intersection, union = intersectionAndUnion(ret,gt,2)
             acc_meter.update(acc,pix)
             intersection_meter.update(intersection)
             union_meter.update(union)

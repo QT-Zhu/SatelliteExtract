@@ -28,6 +28,10 @@ def main():
     
     args = parser.parse_args()
     print(args)
+    if args.num_of_class == 1:
+        assert args.loss in ['BCE'], "Loss function & #class do not match."
+    else: #args.num_of_class == 2
+        assert args.loss in ['LS', 'CE', 'CE+D', 'F'], "Loss function & #class do not match."
     my_trainer = Trainer(args)
     my_trainer.run()
 
