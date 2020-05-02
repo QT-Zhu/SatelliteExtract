@@ -37,7 +37,9 @@ class AerialDataset(Dataset):
         img = Image.open(self.img_list[index]).convert('RGB') 
         gt = Image.open(self.gt_list[index]).convert('1')
         #Trans from PIL pair to tensor pair
-        return self.augtrans(img,gt)
+        #print(self.img_list[index])
+        img_name = os.path.basename(self.gt_list[index])
+        return img_name,self.augtrans(img,gt)
         
 if __name__ == "__main__":
    print("AerialDataset.py")
