@@ -116,7 +116,7 @@ class Trainer(object):
         print(f"----------epoch {epoch}----------")
         print("lr:",self.optimizer.state_dict()['param_groups'][0]['lr'])
         total_loss = 0
-        for i,[img,gt] in enumerate(self.train_loader):
+        for i,[_,[img,gt]] in enumerate(self.train_loader):
             print("epoch:",epoch," batch:",i+1)
             print("img:",img.shape)
             print("gt:",gt.shape)
@@ -136,14 +136,15 @@ class Trainer(object):
             self.optimizer.step()
         return total_loss
     
-    def eval(self,epoch):
+    def eval(self,epoch,save=True):
         self.model.eval()
         acc_meter = AverageMeter()
         intersection_meter = AverageMeter()
         union_meter = AverageMeter()
-
+        if save and os.path.exists("epoch"+str(epoch)) is False:
+            os.mkdir("epoch"+str(epoch))
         print(f"-------eval epoch {epoch}--------")
-        for i,[img,gt] in enumerate(self.eval_loader):
+        for i,[img_names,[img,gt]] in enumerate(self.eval_loader):
             print("epoch:",epoch," batch:",i+1)
             print("img:",img.shape)
             print("gt:",gt.shape)
@@ -161,12 +162,14 @@ class Trainer(object):
                 ret[ret < 0.5] = 0
 
             gt = gt.data.detach().cpu().numpy()
-            print(ret.shape,gt.shape)
+            #print(ret.shape,gt.shape)
             acc, pix = accuracy(ret,gt)
             intersection, union = intersectionAndUnion(ret,gt,2)
             acc_meter.update(acc,pix)
             intersection_meter.update(intersection)
             union_meter.update(union)
+            if save:
+                save_batch(ret,epoch,img_names)
 
         iou = intersection_meter.sum / (union_meter.sum + 1e-10)
         roadIoU = 0
@@ -180,6 +183,11 @@ class Trainer(object):
         print('Road IoU: {:.4f}'.format(roadIoU))
         return Acc,mIoU,roadIoU
 
+def save_batch(img,epoch,img_names):
+    batchsize = img.shape[0]
+    for i in range(batchsize):
+        png_name = os.path.join("epoch"+str(epoch),img_names[0].replace("mask", "pred"))
+        Image.fromarray(ret2mask(img[i])).save(png_name)
 
 if __name__ == "__main__":
    print("--Trainer.py--")
