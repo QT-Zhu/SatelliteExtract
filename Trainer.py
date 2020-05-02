@@ -77,6 +77,10 @@ class Trainer(object):
             self.start_epoch = 1
         self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
+
+        self.submodel = None
+        self.subloss = None
+        #TODO: extra supervision
         
     #Note: self.start_epoch and self.epochs are only used in run() to schedule training & validation
     def run(self):
@@ -186,7 +190,7 @@ class Trainer(object):
 def save_batch(img,epoch,img_names):
     batchsize = img.shape[0]
     for i in range(batchsize):
-        png_name = os.path.join("epoch"+str(epoch),img_names[0].replace("mask", "pred"))
+        png_name = os.path.join("epoch"+str(epoch),img_names[i].replace("mask", "pred"))
         Image.fromarray(ret2mask(img[i])).save(png_name)
 
 if __name__ == "__main__":
