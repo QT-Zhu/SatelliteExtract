@@ -2,11 +2,6 @@ import torchvision.models as models
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-import torchvision.transforms as T
-
-trf = T.Compose([T.ToTensor(), 
-                 T.Normalize(mean = [0.485, 0.456, 0.406], 
-                             std = [0.229, 0.224, 0.225])])
 
 class SubModel(torch.nn.Module):
     def __init__(self,selected_layer):
@@ -14,9 +9,8 @@ class SubModel(torch.nn.Module):
         self.selected_layer=selected_layer
         self.pretrained_model = models.mobilenet_v2(pretrained=True).features
         self.criterion = torch.nn.L1Loss(reduction='mean')
-
-        for eachpara in self.pretrained_model.parameters():
-            eachpara.requires_grad = False
+        for params in self.pretrained_model.parameters():
+            params.requires_grad = False
     
     def forward(self,pred,gt,vis=True):
         pred = self.get_features(pred)

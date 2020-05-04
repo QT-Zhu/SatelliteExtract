@@ -63,9 +63,9 @@ class Trainer(object):
         self.optimizer = opt.AdamW(self.model.parameters(),lr=args.lr)
         self.scheduler = Poly(self.optimizer,num_epochs=args.epochs,iters_per_epoch=len(self.train_loader))
         
+        self.model = nn.DataParallel(self.model)
         self.cuda = args.cuda
         if self.cuda is True:
-            self.model = nn.DataParallel(self.model)
             self.model = self.model.cuda()
 
         self.resume = args.resume
@@ -83,10 +83,8 @@ class Trainer(object):
             self.start_epoch = 1
         self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
-
-        #self.submodel = torchvision.models.mobilenet_v2(pretrained=True).features
-        #self.subloss = nn.L1Loss(reduction='mean')
-        #TODO: extra supervision
+        if args.submodel:
+            self.submodel = models.SubModel(3)
         
     #Note: self.start_epoch and self.epochs are only used in run() to schedule training & validation
     def run(self):
@@ -138,6 +136,12 @@ class Trainer(object):
             if self.args.num_of_class == 1:
                 pred = pred.squeeze()
                 loss = self.criterion(pred,gt)
+                if self.args.submodel:
+                    pred = torch.sigmoid(pred)
+                    pred_C3 = torch.stack([pred,pred,pred],dim=1)
+                    gt = torch.stack([gt,gt,gt],dim=1)
+                    x = self.submodel(pred_C3,gt,vis=False)
+                    loss += x
             else: #self.args.num_of_class == 2
                 loss = self.criterion(pred,gt.long())
             print("loss:",loss)

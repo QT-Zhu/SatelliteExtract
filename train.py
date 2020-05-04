@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--init_eval', type=str2bool, default=False, help='whether to start with evaluation')
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate of training')
     parser.add_argument('--reproduce', type=str2bool, default=False, help='whether to use given seed')
+    parser.add_argument('--submodel', type=str2bool, default=False, help='whether to use submodel')
 
     args = parser.parse_args()
     print(args)
