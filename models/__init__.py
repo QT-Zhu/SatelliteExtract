@@ -1,4 +1,5 @@
 from .base_model import BaseModel
+from .submodel import SubModel
 from .helpers import *
 from .fcn import FCN8
 from .deeplabv3_plus import DeepLab
