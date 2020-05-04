@@ -8,6 +8,7 @@ from utils.utils import ret2mask
 from utils.meter import AverageMeter,accuracy,intersectionAndUnion
 import numpy as np
 from PIL import Image
+import torchvision
 
 
 from tensorboardX import SummaryWriter
@@ -78,8 +79,8 @@ class Trainer(object):
         self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
 
-        self.submodel = None
-        self.subloss = None
+        #self.submodel = torchvision.models.mobilenet_v2(pretrained=True).features
+        #self.subloss = nn.L1Loss()
         #TODO: extra supervision
         
     #Note: self.start_epoch and self.epochs are only used in run() to schedule training & validation
