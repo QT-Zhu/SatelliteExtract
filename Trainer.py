@@ -59,6 +59,8 @@ class Trainer(object):
             raise NotImplementedError
 
         self.token = self.model.__class__.__name__+'_'+args.loss
+        if args.submodel:
+            self.token += '_'+'sub'
 
         self.optimizer = opt.AdamW(self.model.parameters(),lr=args.lr)
         self.scheduler = Poly(self.optimizer,num_epochs=args.epochs,iters_per_epoch=len(self.train_loader))
@@ -137,13 +139,22 @@ class Trainer(object):
                 pred = pred.squeeze()
                 loss = self.criterion(pred,gt)
                 if self.args.submodel:
-                    pred = torch.sigmoid(pred)
+                    pred = pred.sigmoid()
                     pred_C3 = torch.stack([pred,pred,pred],dim=1)
                     gt = torch.stack([gt,gt,gt],dim=1)
                     x = self.submodel(pred_C3,gt,vis=False)
                     loss += x
             else: #self.args.num_of_class == 2
                 loss = self.criterion(pred,gt.long())
+                if self.args.submodel:
+                    pred = pred.softmax(dim=1).permute(0,2,3,1)
+                    subscript = torch.Tensor([0.,1.])
+                    pred = torch.matmul(pred,subscript)
+                    pred_C3 = torch.stack([pred,pred,pred],dim=1)
+                    gt = torch.stack([gt,gt,gt],dim=1)
+                    x = self.submodel(pred_C3,gt,vis=False)
+                    loss += x
+
             print("loss:",loss)
             total_loss += loss.data
             loss.backward()
