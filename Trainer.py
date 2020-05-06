@@ -85,8 +85,11 @@ class Trainer(object):
             self.start_epoch = 1
         self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
+
         if args.submodel:
             self.submodel = models.SubModel(3)
+            if self.cuda:
+                self.submodel = self.submodel.cuda()
         
     #Note: self.start_epoch and self.epochs are only used in run() to schedule training & validation
     def run(self):
@@ -149,6 +152,8 @@ class Trainer(object):
                 if self.args.submodel:
                     pred = pred.softmax(dim=1).permute(0,2,3,1)
                     subscript = torch.Tensor([0.,1.])
+                    if self.cuda:
+                        subscript = subscript.cuda()
                     pred = torch.matmul(pred,subscript)
                     pred_C3 = torch.stack([pred,pred,pred],dim=1)
                     gt = torch.stack([gt,gt,gt],dim=1)
