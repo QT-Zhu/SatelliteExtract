@@ -40,8 +40,11 @@ class DiceLoss(nn.Module):
         self.smooth = smooth
 
     def forward(self, output, target):
+        
         if self.ignore_index not in range(target.min(), target.max()):
+            print('here')
             if (target == self.ignore_index).sum() > 0:
+                print('there')
                 target[target == self.ignore_index] = target.min()
         target = make_one_hot(target.unsqueeze(dim=1), classes=output.size()[1])
         output = F.softmax(output, dim=1)
@@ -57,7 +60,7 @@ class FocalLoss(nn.Module):
         super(FocalLoss, self).__init__()
         self.gamma = gamma
         self.size_average = size_average
-        self.CE_loss = nn.CrossEntropyLoss(reduce=False, ignore_index=ignore_index, weight=alpha)
+        self.CE_loss = nn.CrossEntropyLoss(reduction='none', ignore_index=ignore_index, weight=alpha)
 
     def forward(self, output, target):
         logpt = self.CE_loss(output, target)
@@ -66,6 +69,23 @@ class FocalLoss(nn.Module):
         if self.size_average:
             return loss.mean()
         return loss.sum()
+
+class BCE_DiceLoss(nn.Module):
+    def __init__(self, smooth=1, reduction='mean', ignore_index=255, weight=None):
+        super(BCE_DiceLoss, self).__init__()
+        self.smooth = smooth
+        self.dice = DiceLoss()
+        self.bcross_entropy = nn.BCEWithLogitsLoss(weight=weight, reduction=reduction)
+    
+    def forward(self, output, target):
+        CE_loss = self.bcross_entropy(output, target)
+        N = target.size(0)
+        input_flat = output.view(N,-1)
+        target_flat = target.view(N, -1)
+        intersection = input_flat * target_flat
+        loss = 2 * (intersection.sum(1) + self.smooth) / (input_flat.sum(1) + target_flat.sum(1) + self.smooth)
+        loss = 1 - loss.sum() / N
+        return loss + CE_loss
 
 class CE_DiceLoss(nn.Module):
     def __init__(self, smooth=1, reduction='mean', ignore_index=255, weight=None):

@@ -4,26 +4,32 @@ import torch
 import matplotlib.pyplot as plt
 
 class SubModel(torch.nn.Module):
-    def __init__(self,selected_layer):
+    def __init__(self,model,layers):
         super(SubModel,self).__init__()
-        self.selected_layer=selected_layer
-        self.pretrained_model = models.mobilenet_v2(pretrained=True).features
-        self.criterion = torch.nn.L1Loss(reduction='mean')
+        self.selected_layer=layers
+        if model=='mobilenet_v2':
+            self.pretrained_model = models.mobilenet_v2(pretrained=True).features
+        elif model=='vgg16':
+            self.pretrained_model = models.vgg16(pretrained=True).features
+        else:
+            raise NotImplementedError
+        self.criterion = torch.nn.SmoothL1Loss(reduction='mean')
         for params in self.pretrained_model.parameters():
             params.requires_grad = False
     
     def forward(self,pred,gt,vis=True):
-        pred = self.get_features(pred)
-        gt = self.get_features(gt)
-        if vis:
-            self.plot(pred,gt)
-        loss = self.criterion(pred,gt)
+        for each_layer in self.selected_layer:     
+            pred = self.get_features(pred,each_layer)
+            gt = self.get_features(gt,each_layer)
+            if vis:
+                self.plot(pred,gt)
+            loss += self.criterion(pred,gt)
         return loss
 
-    def get_features(self,x):
+    def get_features(self,x,wanted_layer):
         for index,layer in enumerate(self.pretrained_model):
             x = layer(x)
-            if (index == self.selected_layer):
+            if (index == wanted_layer):
                 return x
     
     def plot(self,pred,gt):

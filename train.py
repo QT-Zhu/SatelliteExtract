@@ -21,19 +21,22 @@ def main():
     parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
     parser.add_argument('--resume', type=str, default=None, help='checkpoint to resume from')
     parser.add_argument('--cuda', type=str2bool, default=False, help='whether to use GPU')
-    parser.add_argument('--loss', type=str, default='BCE', choices=['CE','BCE','LS','F','CE+D'], help='type of loss function')
+    parser.add_argument('--loss', type=str, default='BCE', choices=['CE','BCE','LS','F','CE+D','BCE+D'], help='type of loss function')
     parser.add_argument('--model', type=str, default='deeplabv3+', help='model to train')
     parser.add_argument('--init_eval', type=str2bool, default=False, help='whether to start with evaluation')
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate of training')
     parser.add_argument('--reproduce', type=str2bool, default=False, help='whether to use given seed')
-    parser.add_argument('--submodel', type=str2bool, default=False, help='whether to use submodel')
+    parser.add_argument('--submodel', type=str, default=None, help='which submodel to use')
+    parser.add_argument('--selected_layer', type=int, nargs='+', default=[3], help='which layer to use for supervision')
 
     args = parser.parse_args()
-    print(args)
+    #verify args
     if args.num_of_class == 1:
-        assert args.loss in ['BCE'], "Loss function & #class do not match."
+        assert args.loss in ['BCE','BCE+D'], "Loss function & #class do not match."
     else: #args.num_of_class == 2
         assert args.loss in ['LS', 'CE', 'CE+D', 'F'], "Loss function & #class do not match."
+
+    print(args)
     my_trainer = Trainer(args)
     my_trainer.run()
 

@@ -12,7 +12,7 @@ from PIL import Image
 from tensorboardX import SummaryWriter
 
 #For loss and scheduler
-from utils.loss import CE_DiceLoss, CrossEntropyLoss2d, LovaszSoftmax, FocalLoss
+from utils.loss import CE_DiceLoss, CrossEntropyLoss2d, LovaszSoftmax, FocalLoss, BCE_DiceLoss
 from utils.scheduler import Poly
 import models
 
@@ -55,6 +55,8 @@ class Trainer(object):
             self.criterion = FocalLoss()
         elif args.loss == 'CE+D':
             self.criterion = CE_DiceLoss()
+        elif args.loss == 'BCE+D':
+            self.criterion = BCE_DiceLoss()
         else:
             raise NotImplementedError
 
@@ -86,8 +88,8 @@ class Trainer(object):
         self.writer = SummaryWriter(comment='-'+self.token)
         self.init_eval = args.init_eval
 
-        if args.submodel:
-            self.submodel = models.SubModel(3)
+        if args.submodel != None:
+            self.submodel = models.SubModel(model=args.submodel,layers=args.selected_layer)
             if self.cuda:
                 self.submodel = self.submodel.cuda()
         

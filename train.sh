@@ -1,4 +1,14 @@
-python3 train.py --num_of_class 2 --model gcn --cuda False --train_batch_size 2 \
-    --eval_batch_size 2 --loss CE --init_eval False --epochs 200 \
-    --resume ./checkpoints/GCN_CE_epoch160.pth.tar --reproduce True \
-    --submodel True
+python3 train.py \
+    --cuda False \
+    --num_of_class 1 \
+    --model gcn \
+    --loss BCE+D \
+    --submodel mobilenet_v2 \
+    --selected_layer 3 \
+    --epochs 200 \
+    --train_batch_size 2 \
+    --eval_batch_size 2 \
+    --init_eval False \
+    --reproduce True 
+    
+    
