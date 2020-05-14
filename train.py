@@ -9,6 +9,12 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Unsupported bool string format.')
 
+def str2none(v):
+    if v.lower() == 'none':
+        return None
+    else:
+        return v
+
 def main():
     parser = argparse.ArgumentParser(description="train.py")
     parser.add_argument('--train_batch_size', type=int, default=2, help='batch size for training')
@@ -26,7 +32,7 @@ def main():
     parser.add_argument('--init_eval', type=str2bool, default=False, help='whether to start with evaluation')
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate of training')
     parser.add_argument('--reproduce', type=str2bool, default=False, help='whether to use given seed')
-    parser.add_argument('--submodel', type=str, default=None, help='which submodel to use')
+    parser.add_argument('--submodel', type=str2none, default=None, help='which submodel to use')
     parser.add_argument('--selected_layer', type=int, nargs='+', default=[3], help='which layer to use for supervision')
 
     args = parser.parse_args()
@@ -35,6 +41,8 @@ def main():
         assert args.loss in ['BCE','BCE+D'], "Loss function & #class do not match."
     else: #args.num_of_class == 2
         assert args.loss in ['LS', 'CE', 'CE+D', 'F'], "Loss function & #class do not match."
+    if args.submodel == None:
+        args.selected_layer = None
 
     print(args)
     my_trainer = Trainer(args)

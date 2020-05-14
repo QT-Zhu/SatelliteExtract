@@ -3,7 +3,7 @@ python3 train.py \
     --num_of_class 1 \
     --model gcn \
     --loss BCE+D \
-    --submodel mobilenet_v2 \
+    --submodel None \
     --selected_layer 3 \
     --epochs 200 \
     --train_batch_size 2 \
