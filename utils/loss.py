@@ -76,16 +76,25 @@ class BCE_DiceLoss(nn.Module):
         self.smooth = smooth
         self.dice = DiceLoss()
         self.bcross_entropy = nn.BCEWithLogitsLoss(weight=weight, reduction=reduction)
+
+    def soft_dice_coeff(self, y_true, y_pred):
+        smooth = 0.0  # may change
+        i = torch.sum(y_true)
+        j = torch.sum(y_pred)
+        intersection = torch.sum(y_true * y_pred)
+        
+        score = (2. * intersection + smooth) / (i + j + smooth)
+        #score = (intersection + smooth) / (i + j - intersection + smooth)#iou
+        return score.mean()
+
+    def soft_dice_loss(self, y_true, y_pred):
+        loss = 1 - self.soft_dice_coeff(y_true, y_pred)
+        return loss
     
     def forward(self, output, target):
         CE_loss = self.bcross_entropy(output, target)
-        N = target.size(0)
-        input_flat = output.view(N,-1)
-        target_flat = target.view(N, -1)
-        intersection = input_flat * target_flat
-        loss = 2 * (intersection.sum(1) + self.smooth) / (input_flat.sum(1) + target_flat.sum(1) + self.smooth)
-        loss = 1 - loss.sum() / N
-        return loss + CE_loss
+        soft_dice = self.soft_dice_loss(target,output.sigmoid())
+        return soft_dice + CE_loss
 
 class CE_DiceLoss(nn.Module):
     def __init__(self, smooth=1, reduction='mean', ignore_index=255, weight=None):
