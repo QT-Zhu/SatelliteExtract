@@ -5,7 +5,7 @@ import torch.nn as nn
 from .lovasz_losses import lovasz_softmax
 
 def make_one_hot(labels, classes):
-    if isinstance(labels,torch.cuda.FloatTensor):
+    if torch.cuda.is_available():
         one_hot = torch.cuda.FloatTensor(labels.size()[0], classes, labels.size()[2], labels.size()[3]).zero_()
     else:
         one_hot = torch.FloatTensor(labels.size()[0], classes, labels.size()[2], labels.size()[3]).zero_()
@@ -42,9 +42,7 @@ class DiceLoss(nn.Module):
     def forward(self, output, target):
         
         if self.ignore_index not in range(target.min(), target.max()):
-            print('here')
             if (target == self.ignore_index).sum() > 0:
-                print('there')
                 target[target == self.ignore_index] = target.min()
         target = make_one_hot(target.unsqueeze(dim=1), classes=output.size()[1])
         output = F.softmax(output, dim=1)
