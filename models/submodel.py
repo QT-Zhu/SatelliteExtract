@@ -18,6 +18,7 @@ class SubModel(torch.nn.Module):
             params.requires_grad = False
     
     def forward(self,pred,gt,vis=True):
+        loss = 0.
         for each_layer in self.selected_layer:     
             pred = self.get_features(pred,each_layer)
             gt = self.get_features(gt,each_layer)
