@@ -19,12 +19,13 @@ class SubModel(torch.nn.Module):
     
     def forward(self,pred,gt,vis=True):
         loss = 0.
-        for each_layer in self.selected_layer:     
-            pred = self.get_features(pred,each_layer)
-            gt = self.get_features(gt,each_layer)
+        for each_layer in self.selected_layer:
+            #print(each_layer)     
+            pred_ = self.get_features(pred,each_layer)
+            gt_ = self.get_features(gt,each_layer)
             if vis:
-                self.plot(pred,gt)
-            loss += self.criterion(pred,gt)
+                self.plot(pred_,gt_)
+            loss += self.criterion(pred_,gt_)
         return loss
 
     def get_features(self,x,wanted_layer):
