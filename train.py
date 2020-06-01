@@ -17,6 +17,7 @@ def str2none(v):
 
 def main():
     parser = argparse.ArgumentParser(description="train.py")
+    parser.add_argument('--mode', type=str, default='train',choices=['train','test'], help='which mode to run')
     parser.add_argument('--train_batch_size', type=int, default=2, help='batch size for training')
     parser.add_argument('--eval_batch_size', type=int, default=2, help='batch size for evaluating')
     parser.add_argument('--train_list', type=str, default='dataset/train.txt', help='list file for training')
@@ -36,17 +37,25 @@ def main():
     parser.add_argument('--selected_layer', type=int, nargs='+', default=[3], help='which layer to use for supervision')
 
     args = parser.parse_args()
-    #verify args
-    if args.num_of_class == 1:
-        assert args.loss in ['BCE','BCE+D'], "Loss function & #class do not match."
-    else: #args.num_of_class == 2
-        assert args.loss in ['LS', 'CE', 'CE+D', 'F'], "Loss function & #class do not match."
-    if args.submodel == None:
-        args.selected_layer = None
-
-    print(args)
-    my_trainer = Trainer(args)
-    my_trainer.run()
+    if args.mode == 'test':
+        print(args)
+        my_trainer = Trainer(args)
+        Acc,mIoU,roadIoU = my_trainer.eval(epoch=-1)
+        print("Acc:",Acc)
+        print("mIoU:",mIoU)
+        print("roadIoU:",roadIoU)
+    
+    else:
+        #verify args
+        if args.num_of_class == 1:
+            assert args.loss in ['BCE','BCE+D'], "Loss function & #class do not match."
+        else: #args.num_of_class == 2
+            assert args.loss in ['LS', 'CE', 'CE+D', 'F'], "Loss function & #class do not match."
+        if args.submodel == None:
+            args.selected_layer = None
+        print(args)
+        my_trainer = Trainer(args)
+        my_trainer.run()
 
 if __name__ == "__main__":
    main()
