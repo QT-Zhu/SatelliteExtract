@@ -40,6 +40,8 @@ class Trainer(object):
             self.model = models.DeepLab(num_classes=args.num_of_class,backbone='resnet')
         elif args.model == 'gcn':
             self.model = models.GCN(num_classes=args.num_of_class)
+        elif args.model == 'dlinknet':
+            self.model = models.DinkNet34(num_classes=args.num_of_class)
         elif args.model == 'pspnet':
             raise NotImplementedError
         else:
